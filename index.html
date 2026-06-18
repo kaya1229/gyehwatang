@@ -32,7 +32,8 @@
 
         function YangSukBiGame() {
             const [score, setScore] = useState(0);
-            const [gameState, setGameState] = useState('FRONT'); 
+            // 처음 앱 구동 시 대기 화면('READY')으로 시작합니다.
+            const [gameState, setGameState] = useState('READY'); // 'READY', 'FRONT', 'LEFT', 'RIGHT', 'CAUGHT', 'SUCCESS'
             const [isPouring, setIsPouring] = useState(false); 
             const [isPortrait, setIsPortrait] = useState(false); 
 
@@ -58,7 +59,8 @@
 
             // 게임 시선 루프
             const startNextTurn = () => {
-                if (stateRef.current === 'CAUGHT' || stateRef.current === 'SUCCESS') return;
+                // 게임오버, 성공, 혹은 대기 상태일 때는 패턴 루프가 돌지 않습니다.
+                if (['READY', 'CAUGHT', 'SUCCESS'].includes(stateRef.current)) return;
                 const randomTime = Math.floor(Math.random() * 1500) + 1000;
 
                 loopTimerRef.current = setTimeout(() => {
@@ -84,20 +86,24 @@
                 }, randomTime);
             };
 
-            const initGame = () => {
+            // [게임 시작하기] 또는 [다시 도전하기]를 눌렀을 때 호출되는 함수
+            const playGame = () => {
                 if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
                 if (safeTimerRef.current) clearTimeout(safeTimerRef.current);
+                
                 setScore(0);
                 setIsPouring(false);
                 isSafeRef.current = true;
                 pressedKeysRef.current.clear();
+                
+                // 대기 화면에서 정면 화면('FRONT')으로 변환하면서 본격 가동
                 setGameState('FRONT');
                 
                 setTimeout(() => { startNextTurn(); }, 500);
             };
 
             useEffect(() => {
-                initGame();
+                // 최초 진입 시엔 타이머를 돌리지 않고 대기 화면 상태를 유지합니다.
                 return () => {
                     if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
                     if (safeTimerRef.current) clearTimeout(safeTimerRef.current);
@@ -127,7 +133,7 @@
             useEffect(() => {
                 const handleKeyDown = (e) => {
                     if (['ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
-                    if (stateRef.current === 'CAUGHT' || stateRef.current === 'SUCCESS') return;
+                    if (['READY', 'CAUGHT', 'SUCCESS'].includes(stateRef.current)) return;
                     if (pressedKeysRef.current.has(e.key)) return;
                     pressedKeysRef.current.add(e.key);
 
@@ -156,9 +162,9 @@
                 };
             }, []);
 
-            // 단일 HTML 파일 환경에서는 이미지 이름을 상대 경로로 바로 부르면 됩니다.
             const getBackgroundImage = () => {
                 switch (gameState) {
+                    case 'READY': return 'success.jpeg'; // 시작 화면 배경 지정
                     case 'FRONT': return 'center.png';
                     case 'LEFT': return isPouring ? 'key_r.png' : 'left.png';
                     case 'RIGHT': return isPouring ? 'key_l.png' : 'right.png';
@@ -179,15 +185,28 @@
 
                     <img src={getBackgroundImage()} alt="Game Screen" style={styles.bgImage} />
 
-                    {gameState !== 'CAUGHT' && gameState !== 'SUCCESS' && (
-                        <div style={styles.hudContainer}>
-                            <div style={styles.scoreText}>계화탕 비우기 진행도: {score}%</div>
+                    {/* 🎮 1. 최초 대기 화면 오버레이 및 시작하기 버튼 */}
+                    {gameState === 'READY' && (
+                        <div style={styles.overlay}>
+                            <div style={styles.startBox}>
+                                <h1 style={styles.startTitle}>양숙비 눈치보기</h1>
+                                <p style={styles.startDesc}>양숙비가 고개를 돌렸을 때 방향키를 연타해 계화탕을 비우세요!</p>
+                                <button onClick={playGame} style={styles.startButton}>게임 시작하기</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 📈 2. 인게임 우측 상단 진행도 점수 전용 패널 */}
+                    {gameState !== 'READY' && gameState !== 'CAUGHT' && gameState !== 'SUCCESS' && (
+                        <div style={styles.hudRightTop}>
+                            <div style={styles.scoreText}>진행도: {score}%</div>
                             <div style={styles.progressContainer}>
                                 <div style={{ ...styles.progressBar, width: `${score}%` }} />
                             </div>
                         </div>
                     )}
 
+                    {/* 🏆 3. 결과 화면 오버레이 */}
                     {(gameState === 'CAUGHT' || gameState === 'SUCCESS') && (
                         <div style={styles.overlay}>
                             <div style={styles.resultBox}>
@@ -202,7 +221,7 @@
                                         ? '양숙비 몰래 계화탕을 바닥과 옷에 전부 비워냈습니다!' 
                                         : '양숙비에게 계화탕을 몰래 버리던 현장을 들키고 말았습니다.'}
                                 </p>
-                                <button onClick={initGame} style={styles.restartButton}>다시 도전하기</button>
+                                <button onClick={playGame} style={styles.restartButton}>다시 도전하기</button>
                             </div>
                         </div>
                     )}
@@ -214,16 +233,26 @@
         const styles = {
             container: { position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', overflow: 'hidden', backgroundColor: '#000', display: 'flex', justifyContent: 'center', alignItems: 'center' },
             bgImage: { width: '100%', height: '100%', objectFit: 'cover', userSelect: 'none', pointerEvents: 'none' },
-            hudContainer: { position: 'absolute', top: '4%', left: '50%', transform: 'translateX(-50%)', width: '70%', maxWidth: '450px', backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: '12px 18px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.5)', textAlign: 'center', zIndex: 10 },
-            scoreText: { color: '#fff', fontSize: '15px', fontWeight: 'bold', marginBottom: '6px' },
-            progressContainer: { width: '100%', height: '12px', backgroundColor: '#222', borderRadius: '6px', overflow: 'hidden' },
-            progressBar: { height: '100%', backgroundColor: '#4CAF50', transition: 'width 0.1s ease-out', borderRadius: '6px' },
-            overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 20 },
+            // 📍 우측 상단 배치로 변경된 HUD 스타일 스펙
+            hudRightTop: { position: 'absolute', top: '20px', right: '20px', width: '180px', backgroundColor: 'rgba(0, 0, 0, 0.85)', padding: '10px 15px', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', zIndex: 10, textAlign: 'left' },
+            scoreText: { color: '#fff', fontSize: '14px', fontWeight: 'bold', marginBottom: '5px' },
+            progressContainer: { width: '100%', height: '8px', backgroundColor: '#222', borderRadius: '4px', overflow: 'hidden' },
+            progressBar: { height: '100%', backgroundColor: '#4CAF50', transition: 'width 0.1s ease-out', borderRadius: '4px' },
+            
+            overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 20 },
+            
+            // 대기화면 전용 UI 박스
+            startBox: { backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '30px 40px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 15px 30px rgba(0,0,0,0.5)', maxWidth: '400px', width: '80%' },
+            startTitle: { fontSize: '28px', fontWeight: 'bold', margin: '0 0 10px 0', color: '#111' },
+            startDesc: { color: '#666', fontSize: '14px', lineHeight: '1.5', marginBottom: '25px', wordBreak: 'keep-all' },
+            startButton: { backgroundColor: '#4CAF50', color: '#fff', border: 'none', padding: '12px 35px', fontSize: '16px', fontWeight: 'bold', borderRadius: '8px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(76,175,80,0.3)' },
+            
             resultBox: { backgroundColor: '#fff', padding: '25px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 15px 30px rgba(0,0,0,0.6)', maxWidth: '380px', width: '85%', maxHeight: '90vh', overflowY: 'auto' },
             resultTitle: { fontSize: '24px', fontWeight: 'bold', marginBottom: '6px', margin: 0 },
             finalScoreContainer: { fontSize: '20px', fontWeight: '800', margin: '10px 0', color: '#333', backgroundColor: '#f5f5f5', padding: '8px', borderRadius: '8px', border: '1px solid #e0e0e0' },
             resultDesc: { color: '#555', fontSize: '13px', lineHeight: '1.5', marginBottom: '18px', wordBreak: 'keep-all' },
             restartButton: { backgroundColor: '#111', color: '#fff', border: 'none', padding: '10px 24px', fontSize: '14px', fontWeight: 'bold', borderRadius: '8px', cursor: 'pointer' },
+            
             rotateOverlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#111', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', zIndex: 100, textAlign: 'center', padding: '20px' },
             rotateIcon: { fontSize: '50px', marginBottom: '20px' },
             rotateText: { fontSize: '16px', lineHeight: '1.6', wordBreak: 'keep-all' }
