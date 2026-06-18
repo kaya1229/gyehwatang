@@ -4,94 +4,102 @@
     <meta charset="UTF-8">
     <title>양숙비 몰래 계화탕 버리기!</title>
     <style>
-        body { margin: 0; background-color: #222; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Malgun Gothic', sans-serif; }
+        body { margin: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Malgun Gothic', sans-serif; }
         #game-container { position: relative; width: 800px; height: 600px; background-color: #000; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
         .screen { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; flex-direction: column; justify-content: center; align-items: center; }
         
-        /* 시작 및 결과 버튼 공통 스타일 */
         .btn { padding: 15px 40px; font-size: 24px; font-weight: bold; background-color: #b8860b; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
         .btn:hover { background-color: #daa520; transform: scale(1.05); }
 
-        #score-box { position: absolute; top: 20px; right: 30px; background-color: rgba(0, 0, 0, 0.7); padding: 10px 20px; border-radius: 5px; font-size: 24px; z-index: 10; }
-        #final-score { margin-bottom: 20px; font-size: 32px; color: #ff4d4d; background-color: rgba(0,0,0,0.8); padding: 10px 30px; border-radius: 5px; font-weight: bold; }
+        #score-box { position: absolute; top: 20px; right: 30px; background-color: rgba(0, 0, 0, 0.7); padding: 10px 20px; border-radius: 5px; font-size: 24px; z-index: 10; color: white; }
     </style>
 </head>
 <body>
 
     <div id="game-container">
         <div id="start-screen" class="screen" style="display: flex; background-image: url('start.jpeg');">
-            <button id="start-btn" class="btn">게임 시작</button>
+            <button id="start-btn" class="btn">로딩 중...</button>
         </div>
-
         <div id="main-screen" class="screen">
             <div id="score-box">Score: <span id="score">0</span> / 100</div>
         </div>
-
         <div id="success-screen" class="screen" style="background-image: url('success.jpeg');">
             <button onclick="location.reload()" class="btn">다시하기</button>
         </div>
-
         <div id="caught-screen" class="screen" style="background-image: url('caught.jpeg');">
-            <div id="final-score">최종 점수: <span id="result-score">0</span>점</div>
             <button onclick="location.reload()" class="btn">다시하기</button>
         </div>
     </div>
 
     <script>
-        let score = 0, isGameOver = false, currentState = 'center', currentDisplay = 'center', stateTimer = null;
-        const images = { 'center': 'center.png', 'left': 'left.png', 'right': 'right.png', 'key_l': 'key_l.png', 'key_r': 'key_r.png' };
-        const startScreen = document.getElementById('start-screen'), mainScreen = document.getElementById('main-screen'), successScreen = document.getElementById('success-screen'), caughtScreen = document.getElementById('caught-screen');
+        // --- 1. 이미지 미리 로딩 (핵심) ---
+        const imageFiles = ['center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.jpeg', 'success.jpeg', 'caught.jpeg'];
+        const preloadedImages = {};
+        let loadedCount = 0;
+
+        imageFiles.forEach(src => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+                loadedCount++;
+                if (loadedCount === imageFiles.length) {
+                    document.getElementById('start-btn').textContent = "게임 시작";
+                }
+            };
+            preloadedImages[src] = img;
+        });
+
+        // --- 2. 게임 변수 ---
+        let score = 0, isGameOver = false, currentState = 'center';
+        const mainScreen = document.getElementById('main-screen');
 
         document.getElementById('start-btn').addEventListener('click', () => {
-            startScreen.style.display = 'none';
+            if (loadedCount < imageFiles.length) return;
+            document.getElementById('start-screen').style.display = 'none';
             mainScreen.style.display = 'flex';
-            updateDisplay();
+            updateDisplay('center');
             planNextStateChange();
         });
 
+        // --- 3. 이미지 즉시 전환 함수 ---
+        function updateDisplay(key) {
+            // 미리 로딩된 객체의 src를 가져와서 즉시 교체
+            mainScreen.style.backgroundImage = `url('${preloadedImages[key + '.png'] ? key + '.png' : key + '.jpeg'}')`;
+            document.getElementById('score').textContent = score;
+        }
+
+        // --- 4. 시선 변경 및 입력 처리 ---
         function changeState() {
             if (isGameOver) return;
             currentState = (currentState === 'left' || currentState === 'right') ? 'center' : (Math.random() < 0.5 ? 'left' : 'right');
-            currentDisplay = currentState;
-            updateDisplay();
+            updateDisplay(currentState);
             planNextStateChange();
         }
 
         function planNextStateChange() {
-            const delay = Math.floor(Math.random() * 1500) + 1500;
-            clearTimeout(stateTimer);
-            stateTimer = setTimeout(changeState, delay);
-        }
-
-        function updateDisplay() {
-            mainScreen.style.backgroundImage = `url('${images[currentDisplay]}')`;
-            document.getElementById('score').textContent = score;
+            setTimeout(changeState, Math.floor(Math.random() * 1500) + 1500);
         }
 
         window.addEventListener('keydown', (e) => {
-            if (isGameOver || mainScreen.style.display !== 'flex') return;
-            if (e.repeat) return;
+            if (isGameOver || mainScreen.style.display !== 'flex' || e.repeat) return;
             if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 if (currentState === 'center') endGame(false);
                 else if ((currentState === 'right' && e.key === 'ArrowLeft') || (currentState === 'left' && e.key === 'ArrowRight')) {
                     score++;
-                    currentDisplay = (currentState === 'right') ? 'key_l' : 'key_r';
+                    updateDisplay(currentState === 'right' ? 'key_l' : 'key_r');
                     if (score >= 100) endGame(true);
                 } else endGame(false);
-                updateDisplay();
             }
         });
 
         window.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { currentDisplay = currentState; updateDisplay(); }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') updateDisplay(currentState);
         });
 
         function endGame(isSuccess) {
             isGameOver = true;
-            clearTimeout(stateTimer);
             mainScreen.style.display = 'none';
-            if (isSuccess) successScreen.style.display = 'flex';
-            else { caughtScreen.style.display = 'flex'; document.getElementById('result-score').textContent = score; }
+            document.getElementById(isSuccess ? 'success-screen' : 'caught-screen').style.display = 'flex';
         }
     </script>
 </body>
