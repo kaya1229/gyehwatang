@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>양숙비 몰래 계화탕 버리기!</title>
+    <title>양숙비 몰래 계화탕 버리기! - 부드러운 버전</title>
     <style>
-        /* 기본 스타일 및 화면 중앙 정렬 */
         body {
             margin: 0;
             padding: 0;
-            background-color: #222;
+            background-color: #1a1a1a;
             color: white;
             font-family: 'Malgun Gothic', sans-serif;
             display: flex;
@@ -20,16 +19,15 @@
             user-select: none;
         }
 
-        /* 게임 컨테이너 (800x600 고정 비율) */
         #game-container {
             position: relative;
             width: 800px;
             height: 600px;
             background-color: #000;
-            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            overflow: hidden; /* 영역 밖 레이어 숨김 */
         }
 
-        /* 게임 내 모든 화면 레이어 공통 */
         .screen {
             position: absolute;
             width: 100%;
@@ -39,57 +37,84 @@
             background-position: center;
         }
 
+        /* [핵심] 부드러운 페이드 효과를 위한 CSS 정의 */
+        .game-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            /* 0.15초 동안 서서히 투명도가 변함 (눈 피로 감소) */
+            transition: opacity 0.15s ease-in-out; 
+            opacity: 0; /* 기본적으로 투명 */
+            z-index: 1;
+        }
+
+        /* 현재 활성화된 레이어 */
+        .game-layer.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
         /* 시작 화면 */
         #start-screen {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: #332211; /* 이미지 로드 전 임시 배경색 */
+            background-color: #332211;
+            z-index: 10; /* 가장 위에 배치 */
         }
 
         #start-btn {
-            padding: 15px 40px;
-            font-size: 24px;
+            padding: 18px 45px;
+            font-size: 26px;
             font-weight: bold;
             background-color: #b8860b;
             color: white;
-            border: none;
-            border-radius: 5px;
+            border: 2px solid #daa520;
+            border-radius: 8px;
             cursor: pointer;
             transition: 0.2s;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
         }
 
         #start-btn:hover {
             background-color: #daa520;
-            transform: scale(1.05);
+            transform: translateY(-3px);
         }
 
-        /* 점수 UI */
+        /* 로딩 중 표시 (이미지 프리로딩 완료 전까지 활성화) */
+        #start-btn:disabled {
+            background-color: #555;
+            border-color: #777;
+            cursor: wait;
+        }
+
         #score-box {
             position: absolute;
             top: 20px;
             right: 30px;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.75);
             padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 24px;
-            z-index: 10;
+            border-radius: 8px;
+            font-size: 26px;
+            z-index: 20; /* 레이어보다 위에 표시 */
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* 실패 화면 점수 표시 */
         #final-score {
             position: absolute;
             bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 32px;
+            font-size: 34px;
             color: #ff4d4d;
-            background-color: rgba(0,0,0,0.8);
-            padding: 10px 30px;
-            border-radius: 5px;
+            background-color: rgba(0,0,0,0.85);
+            padding: 12px 35px;
+            border-radius: 8px;
             font-weight: bold;
+            z-index: 20;
         }
     </style>
 </head>
@@ -97,11 +122,14 @@
 
     <div id="game-container">
         <div id="start-screen" class="screen" style="display: flex;">
-            <button id="start-btn">게임 시작</button>
+            <button id="start-btn" disabled>이미지 로딩 중...</button>
         </div>
 
         <div id="main-screen" class="screen">
             <div id="score-box">Score: <span id="score">0</span> / 100</div>
+            
+            <div id="layer-1" class="game-layer active"></div>
+            <div id="layer-2" class="game-layer"></div>
         </div>
 
         <div id="success-screen" class="screen"></div>
@@ -112,18 +140,17 @@
     </div>
 
     <script>
-        // --- 게임 상태 및 설정 변수 ---
+        // --- 게임 설정 ---
         let score = 0;
         const MAX_SCORE = 100;
         let isGameOver = false;
-        
-        // 시선 상태: 'center', 'left', 'right'
         let currentState = 'center'; 
         let currentDisplay = 'center';
         let stateTimer = null;
+        let activeLayer = 1; // 현재 전면에 보이는 레이어 번호
 
-        // 이미지 파일 경로 매핑
-        const images = {
+        // 이미지 파일 경로
+        const imagePaths = {
             'center': 'center.png',
             'left': 'left.png',
             'right': 'right.png',
@@ -133,123 +160,169 @@
             'caught': 'caught.jpeg'
         };
 
-        // DOM 요소 가져오기
+        // DOM 요소
         const startScreen = document.getElementById('start-screen');
         const mainScreen = document.getElementById('main-screen');
         const successScreen = document.getElementById('success-screen');
         const caughtScreen = document.getElementById('caught-screen');
         const startBtn = document.getElementById('start-btn');
+        const layer1 = document.getElementById('layer-1');
+        const layer2 = document.getElementById('layer-2');
         const scoreDisplay = document.getElementById('score');
         const resultScoreDisplay = document.getElementById('result-score');
 
-        // --- 게임 시작 기능 ---
+        // --- [핵심] 1. 이미지 프리로딩 시스템 ---
+        const loadedImages = {};
+        let loadedCount = 0;
+        const totalImages = Object.keys(imagePaths).length;
+
+        function preloadImages() {
+            for (const key in imagePaths) {
+                const img = new Image();
+                img.src = imagePaths[key];
+                img.onload = () => {
+                    loadedCount++;
+                    loadedImages[key] = img; // 로드된 이미지 객체 저장
+
+                    // 모든 이미지가 로드되면 버튼 활성화
+                    if (loadedCount === totalImages) {
+                        startBtn.disabled = false;
+                        startBtn.textContent = "게임 시작";
+                    }
+                };
+                img.onerror = () => {
+                    console.error(`이미지 로드 실패: ${imagePaths[key]}`);
+                    // 오류가 나더라도 일단 카운트는 올려서 게임 진행이 가능하게 함
+                    loadedCount++;
+                    if (loadedCount === totalImages) {
+                        startBtn.disabled = false;
+                        startBtn.textContent = "게임 시작 (일부 로딩 실패)";
+                    }
+                };
+            }
+        }
+
+        // 페이지 로드 즉시 프리로딩 시작
+        preloadImages();
+
+
+        // --- [핵심] 2. 부드러운 이미지 교체 (크로스 페이드) ---
+        function updateDisplaySmoothly(imageKey) {
+            if (currentDisplay === imageKey && mainScreen.style.display === 'block') return; // 같은 이미지면 무시
+            currentDisplay = imageKey;
+
+            const nextLayer = activeLayer === 1 ? layer2 : layer1;
+            const currentLayer = activeLayer === 1 ? layer1 : layer2;
+
+            // 다음 레이어에 이미지를 세팅하고 투명하게 만듦
+            nextLayer.style.backgroundImage = `url('${imagePaths[imageKey]}')`;
+            
+            // 크로스 페이드 효과: 다음 레이어 활성화, 현재 레이어 비활성화
+            nextLayer.classList.add('active');
+            currentLayer.classList.remove('active');
+
+            activeLayer = activeLayer === 1 ? 2 : 1; // 레이어 스위칭
+
+            scoreDisplay.textContent = score;
+        }
+
+
+        // --- 게임 로직 ---
         startBtn.addEventListener('click', () => {
             startScreen.style.display = 'none';
             mainScreen.style.display = 'block';
             
-            // 초기 세팅: 정면 샷으로 시작
+            // 초기 세팅: 프리로드된 이미지로 첫 화면 구성
             score = 0;
             isGameOver = false;
             currentState = 'center';
-            currentDisplay = 'center';
-            updateDisplay();
             
-            // 시선 변경 타이머 시동
+            // 레이어 초기화
+            layer1.style.backgroundImage = `url('${imagePaths['center']}')`;
+            layer1.classList.add('active');
+            layer2.classList.remove('active');
+            activeLayer = 1;
+            updateDisplaySmoothly('center');
+            
             planNextStateChange();
         });
 
-        // --- 시선 변경 로직 (핵심 규칙 반영) ---
         function changeState() {
             if (isGameOver) return;
 
             if (currentState === 'left' || currentState === 'right') {
-                // 규칙 1: 좌측이나 우측이었으면 다음은 무조건 정면
                 currentState = 'center';
             } else if (currentState === 'center') {
-                // 규칙 2: 정면이었으면 좌측 또는 우측 중 하나로 랜덤 이동
                 currentState = Math.random() < 0.5 ? 'left' : 'right';
             }
 
-            // 키를 누르고 있지 않은 상태라면 화면을 시선 상태와 동기화
-            currentDisplay = currentState;
-            updateDisplay();
-
-            // 다음 시선 변경 예약
+            updateDisplaySmoothly(currentState); // 시선 변경 시 부드럽게 전환
             planNextStateChange();
         }
 
         function planNextStateChange() {
-            // 너무 짧지 않게 최소 1.5초(1500ms) ~ 최대 3초(3000ms) 사이 랜덤
             const randomDelay = Math.floor(Math.random() * 1500) + 1500;
-            
             clearTimeout(stateTimer);
             stateTimer = setTimeout(changeState, randomDelay);
         }
 
-        // --- 화면 이미지 업데이트 함수 ---
-        function updateDisplay() {
-            mainScreen.style.backgroundImage = `url('${images[currentDisplay]}')`;
-            scoreDisplay.textContent = score;
-        }
+        // --- 키보드 입력 및 화면 유지 타이머 ---
+        let keyupTimeout = null;
 
-        // --- 키보드 입력 처리 (연타 구현) ---
         window.addEventListener('keydown', (event) => {
             if (isGameOver || mainScreen.style.display !== 'block') return;
-            
-            // 연속 입력 방지(isComposing) 및 방향키 체크
             if (event.repeat) return; 
 
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-                
-                // 1) 정면을 볼 때 누르면 즉시 실패
+                clearTimeout(keyupTimeout); // 복귀 타이머 취소
+
                 if (currentState === 'center') {
                     endGame(false);
-                } 
-                // 2) 우측 시선일 때 -> 좌측 방향키 입력 성공
-                else if (currentState === 'right') {
+                } else if (currentState === 'right') {
                     if (event.key === 'ArrowLeft') {
                         score++;
-                        currentDisplay = 'key_l'; // 버리는 모션 변경
+                        updateDisplaySmoothly('key_l'); // 연타 모션도 부드럽게
                         if (score >= MAX_SCORE) endGame(true);
                     } else {
-                        endGame(false); // 잘못된 키 입력 시 실패
+                        endGame(false);
                     }
-                } 
-                // 3) 좌측 시선일 때 -> 우측 방향키 입력 성공
-                else if (currentState === 'left') {
+                } else if (currentState === 'left') {
                     if (event.key === 'ArrowRight') {
                         score++;
-                        currentDisplay = 'key_r'; // 버리는 모션 변경
+                        updateDisplaySmoothly('key_r');
                         if (score >= MAX_SCORE) endGame(true);
                     } else {
                         endGame(false);
                     }
                 }
-                updateDisplay();
             }
         });
 
-        // 키를 떼면 원래 시선 화면으로 자연스럽게 복귀
         window.addEventListener('keyup', (event) => {
             if (isGameOver || mainScreen.style.display !== 'block') return;
 
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-                currentDisplay = currentState;
-                updateDisplay();
+                // 키를 떼도 0.2초간 모션 유지 (깜빡임 완화)
+                clearTimeout(keyupTimeout);
+                keyupTimeout = setTimeout(() => {
+                    if (!isGameOver) {
+                        updateDisplaySmoothly(currentState);
+                    }
+                }, 200); 
             }
         });
 
-        // --- 게임 종료 처리 ---
         function endGame(isSuccess) {
             isGameOver = true;
             clearTimeout(stateTimer);
+            clearTimeout(keyupTimeout);
             mainScreen.style.display = 'none';
 
             if (isSuccess) {
-                successScreen.style.backgroundImage = `url('${images['success']}')`;
+                successScreen.style.backgroundImage = `url('${imagePaths['success']}')`;
                 successScreen.style.display = 'block';
             } else {
-                caughtScreen.style.backgroundImage = `url('${images['caught']}')`;
+                caughtScreen.style.backgroundImage = `url('${imagePaths['caught']}')`;
                 resultScoreDisplay.textContent = score;
                 caughtScreen.style.display = 'block';
             }
