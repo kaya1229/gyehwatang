@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>양숙비 눈치보기 미니게임</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+        #root {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        function YangSukBiGame() {
+            const [score, setScore] = useState(0);
+            const [gameState, setGameState] = useState('FRONT'); 
+            const [isPouring, setIsPouring] = useState(false); 
+            const [isPortrait, setIsPortrait] = useState(false); 
+
+            const stateRef = useRef(gameState);
+            const scoreRef = useRef(score);
+            const loopTimerRef = useRef(null);
+            const safeTimerRef = useRef(null);
+            const isSafeRef = useRef(true); 
+            const pressedKeysRef = useRef(new Set()); 
+
+            useEffect(() => { stateRef.current = gameState; }, [gameState]);
+            useEffect(() => { scoreRef.current = score; }, [score]);
+
+            // 화면 방향 체크
+            useEffect(() => {
+                const checkOrientation = () => {
+                    setIsPortrait(window.innerWidth < window.innerHeight);
+                };
+                checkOrientation();
+                window.addEventListener('resize', checkOrientation);
+                return () => window.removeEventListener('resize', checkOrientation);
+            }, []);
+
+            // 게임 시선 루프
+            const startNextTurn = () => {
+                if (stateRef.current === 'CAUGHT' || stateRef.current === 'SUCCESS') return;
+                const randomTime = Math.floor(Math.random() * 1500) + 1000;
+
+                loopTimerRef.current = setTimeout(() => {
+                    if (stateRef.current === 'FRONT') {
+                        const nextState = Math.random() < 0.5 ? 'LEFT' : 'RIGHT';
+                        setGameState(nextState);
+                        startNextTurn();
+                    } else {
+                        isSafeRef.current = true; 
+                        setGameState('FRONT');
+                        setIsPouring(false);
+
+                        if (safeTimerRef.current) clearTimeout(safeTimerRef.current);
+                        safeTimerRef.current = setTimeout(() => {
+                            isSafeRef.current = false;
+                            if (pressedKeysRef.current.has('ArrowLeft') || pressedKeysRef.current.has('ArrowRight')) {
+                                triggerGameOver();
+                            }
+                        }, 250);
+
+                        startNextTurn();
+                    }
+                }, randomTime);
+            };
+
+            const initGame = () => {
+                if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+                if (safeTimerRef.current) clearTimeout(safeTimerRef.current);
+                setScore(0);
+                setIsPouring(false);
+                isSafeRef.current = true;
+                pressedKeysRef.current.clear();
+                setGameState('FRONT');
+                
+                setTimeout(() => { startNextTurn(); }, 500);
+            };
+
+            useEffect(() => {
+                initGame();
+                return () => {
+                    if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+                    if (safeTimerRef.current) clearTimeout(safeTimerRef.current);
+                };
+            }, []);
+
+            const triggerGameOver = () => {
+                setGameState('CAUGHT');
+                setIsPouring(false);
+                if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+                if (safeTimerRef.current) clearTimeout(safeTimerRef.current);
+            };
+
+            const addScore = () => {
+                const nextScore = scoreRef.current + 5;
+                if (nextScore >= 100) {
+                    setScore(100);
+                    setGameState('SUCCESS');
+                    setIsPouring(false);
+                    if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+                } else {
+                    setScore(nextScore);
+                }
+            };
+
+            // 키보드 제어
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (['ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+                    if (stateRef.current === 'CAUGHT' || stateRef.current === 'SUCCESS') return;
+                    if (pressedKeysRef.current.has(e.key)) return;
+                    pressedKeysRef.current.add(e.key);
+
+                    if (stateRef.current === 'FRONT') {
+                        if (!isSafeRef.current) triggerGameOver();
+                    } else if (stateRef.current === 'LEFT' && e.key === 'ArrowRight') {
+                        setIsPouring(true);
+                        addScore();
+                    } else if (stateRef.current === 'RIGHT' && e.key === 'ArrowLeft') {
+                        setIsPouring(true);
+                        addScore();
+                    }
+                };
+
+                const handleKeyUp = (e) => {
+                    pressedKeysRef.current.delete(e.key);
+                    if (stateRef.current === 'LEFT' && e.key === 'ArrowRight') setIsPouring(false);
+                    if (stateRef.current === 'RIGHT' && e.key === 'ArrowLeft') setIsPouring(false);
+                };
+
+                window.addEventListener('keydown', handleKeyDown);
+                window.addEventListener('keyup', handleKeyUp);
+                return () => {
+                    window.removeEventListener('keydown', handleKeyDown);
+                    window.removeEventListener('keyup', handleKeyUp);
+                };
+            }, []);
+
+            // 단일 HTML 파일 환경에서는 이미지 이름을 상대 경로로 바로 부르면 됩니다.
+            const getBackgroundImage = () => {
+                switch (gameState) {
+                    case 'FRONT': return 'center.png';
+                    case 'LEFT': return isPouring ? 'key_r.png' : 'left.png';
+                    case 'RIGHT': return isPouring ? 'key_l.png' : 'right.png';
+                    case 'CAUGHT': return 'caught.png';
+                    case 'SUCCESS': return 'success.png';
+                    default: return 'center.png';
+                }
+            };
+
+            return (
+                <div style={styles.container}>
+                    {isPortrait && (
+                        <div style={styles.rotateOverlay}>
+                            <div style={styles.rotateIcon}>🔄</div>
+                            <div style={styles.rotateText}>더욱 몰입감 넘치는 플레이를 위해<br />기기를 <strong>가로로 회전</strong>해 주세요!</div>
+                        </div>
+                    )}
+
+                    <img src={getBackgroundImage()} alt="Game Screen" style={styles.bgImage} />
+
+                    {gameState !== 'CAUGHT' && gameState !== 'SUCCESS' && (
+                        <div style={styles.hudContainer}>
+                            <div style={styles.scoreText}>계화탕 비우기 진행도: {score}%</div>
+                            <div style={styles.progressContainer}>
+                                <div style={{ ...styles.progressBar, width: `${score}%` }} />
+                            </div>
+                        </div>
+                    )}
+
+                    {(gameState === 'CAUGHT' || gameState === 'SUCCESS') && (
+                        <div style={styles.overlay}>
+                            <div style={styles.resultBox}>
+                                <h1 style={{ ...styles.resultTitle, color: gameState === 'SUCCESS' ? '#4CAF50' : '#FF5252' }}>
+                                    {gameState === 'SUCCESS' ? '성공! 완벽한 처분' : '발각! 게임 오버'}
+                                </h1>
+                                <div style={styles.finalScoreContainer}>
+                                    최종 점수: <span style={{ color: gameState === 'SUCCESS' ? '#4CAF50' : '#FF5252' }}>{score}점</span>
+                                </div>
+                                <p style={styles.resultDesc}>
+                                    {gameState === 'SUCCESS' 
+                                        ? '양숙비 몰래 계화탕을 바닥과 옷에 전부 비워냈습니다!' 
+                                        : '양숙비에게 계화탕을 몰래 버리던 현장을 들키고 말았습니다.'}
+                                </p>
+                                <button onClick={initGame} style={styles.restartButton}>다시 도전하기</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- 인라인 스타일 세트 ---
+        const styles = {
+            container: { position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', overflow: 'hidden', backgroundColor: '#000', display: 'flex', justifyContent: 'center', alignItems: 'center' },
+            bgImage: { width: '100%', height: '100%', objectFit: 'cover', userSelect: 'none', pointerEvents: 'none' },
+            hudContainer: { position: 'absolute', top: '4%', left: '50%', transform: 'translateX(-50%)', width: '70%', maxWidth: '450px', backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: '12px 18px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.5)', textAlign: 'center', zIndex: 10 },
+            scoreText: { color: '#fff', fontSize: '15px', fontWeight: 'bold', marginBottom: '6px' },
+            progressContainer: { width: '100%', height: '12px', backgroundColor: '#222', borderRadius: '6px', overflow: 'hidden' },
+            progressBar: { height: '100%', backgroundColor: '#4CAF50', transition: 'width 0.1s ease-out', borderRadius: '6px' },
+            overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 20 },
+            resultBox: { backgroundColor: '#fff', padding: '25px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 15px 30px rgba(0,0,0,0.6)', maxWidth: '380px', width: '85%', maxHeight: '90vh', overflowY: 'auto' },
+            resultTitle: { fontSize: '24px', fontWeight: 'bold', marginBottom: '6px', margin: 0 },
+            finalScoreContainer: { fontSize: '20px', fontWeight: '800', margin: '10px 0', color: '#333', backgroundColor: '#f5f5f5', padding: '8px', borderRadius: '8px', border: '1px solid #e0e0e0' },
+            resultDesc: { color: '#555', fontSize: '13px', lineHeight: '1.5', marginBottom: '18px', wordBreak: 'keep-all' },
+            restartButton: { backgroundColor: '#111', color: '#fff', border: 'none', padding: '10px 24px', fontSize: '14px', fontWeight: 'bold', borderRadius: '8px', cursor: 'pointer' },
+            rotateOverlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#111', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', zIndex: 100, textAlign: 'center', padding: '20px' },
+            rotateIcon: { fontSize: '50px', marginBottom: '20px' },
+            rotateText: { fontSize: '16px', lineHeight: '1.6', wordBreak: 'keep-all' }
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<YangSukBiGame />);
+    </script>
+</body>
+</html>
