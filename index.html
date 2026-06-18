@@ -107,7 +107,21 @@
         }
 
         function planNextStateChange() {
-            setTimeout(changeState, Math.floor(Math.random() * 1500) + 1500);
+            // 10점마다 단계가 오름 (0점: 0단계, 10점: 1단계, 20점: 2단계...)
+            const stage = Math.floor(score / 10);
+            
+            // 각 단계마다 대기 시간을 150ms씩 줄임
+            // 최소 시간(minDelay): 1500ms에서 시작해 500ms까지만 줄어듦
+            // 최대 시간(maxDelay): 3000ms에서 시작해 1500ms까지만 줄어듦
+            const reduction = stage * 150;
+            
+            const minDelay = Math.max(500, 1500 - reduction); 
+            const maxDelay = Math.max(1500, 3000 - reduction); 
+            
+            const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay;
+            
+            // 타이머 설정
+            setTimeout(changeState, randomDelay);
         }
 
         window.addEventListener('keydown', (e) => {
