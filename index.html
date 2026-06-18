@@ -3,16 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <title>양숙비 몰래 계화탕 버리기!</title>
-    <style>
-        body { margin: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Malgun Gothic', sans-serif; }
-        #game-container { position: relative; width: 800px; height: 600px; background-color: #000; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
-        .screen { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; flex-direction: column; justify-content: center; align-items: center; }
-        
-        .btn { padding: 15px 40px; font-size: 24px; font-weight: bold; background-color: #b8860b; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
-        .btn:hover { background-color: #daa520; transform: scale(1.05); }
+   <style>
+    body { margin: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Malgun Gothic', serif; }
+    #game-container { position: relative; width: 800px; height: 600px; background-color: #000; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
+    .screen { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; flex-direction: column; justify-content: center; align-items: center; }
+    
+    /* [수정] 이미지 속 느낌을 살린 고급스러운 버튼 스타일 */
+    .btn { 
+        padding: 15px 50px; 
+        font-size: 26px; 
+        font-weight: bold; 
+        color: #fff; 
+        background: linear-gradient(135deg, #b8860b 0%, #5d4a1f 100%); /* 금색 그라데이션 */
+        border: 2px solid #daa520; 
+        border-radius: 30px; /* 둥근 버튼 */
+        cursor: pointer; 
+        transition: 0.3s; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.2);
+        text-shadow: 1px 1px 2px #000;
+    }
+    .btn:hover { 
+        background: linear-gradient(135deg, #daa520 0%, #8b6b23 100%);
+        transform: scale(1.05); 
+        border-color: #fff;
+    }
 
-        #score-box { position: absolute; top: 20px; right: 30px; background-color: rgba(0, 0, 0, 0.7); padding: 10px 20px; border-radius: 5px; font-size: 24px; z-index: 10; color: white; }
-    </style>
+    /* [수정] 점수판을 선택지 말풍선처럼 변경 */
+    #score-box { 
+        position: absolute; 
+        top: 30px; 
+        right: 30px; 
+        background: rgba(40, 20, 10, 0.8); 
+        padding: 15px 25px; 
+        border: 1px solid #b8860b;
+        border-radius: 20px; 
+        font-size: 22px; 
+        z-index: 10; 
+        color: #eecf87; /* 금빛 글자색 */
+        text-shadow: 1px 1px 1px #000;
+    }
+</style>
 </head>
 <body>
 
