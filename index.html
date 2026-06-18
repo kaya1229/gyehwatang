@@ -21,13 +21,20 @@
         }
         .btn:hover { background: rgba(60, 30, 15, 0.95); border-color: #fff; transform: scale(1.05); }
 
-        /* [수정] 영화 자막 스타일 자막 */
+        /* 영화 자막 스타일 자막 */
         #subtitle {
-            position: absolute; bottom: 150px; width: 80%;
-            color: #fff; font-size: 22px; text-shadow: 2px 2px 4px #000;
-            text-align: center; padding: 15px;
-            background: rgba(0, 0, 0, 0.4); /* 영화 자막의 반투명 배경 */
+            position: absolute; 
+            top: 50px; /* 화면 상단에서 50px 아래로 배치 */
+            width: 80%;
+            color: #fff; 
+            font-size: 26px; 
+            text-shadow: 2px 2px 4px #000;
+            font-family: 'Gungsuh', '궁서', serif; /* 궁서체 우선 적용 */
+            text-align: center; 
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4); 
             pointer-events: none;
+            z-index: 100; /* 다른 요소보다 위에 오도록 설정 */
         }
 
         #score-box { 
