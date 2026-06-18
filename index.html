@@ -6,7 +6,7 @@
    <style>
     body { margin: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Malgun Gothic', serif; }
     #game-container { position: relative; width: 800px; height: 600px; background-color: #000; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
-    .screen { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; flex-direction: column; justify-content: center; align-items: center; }
+    .screen { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; flex-direction: column; justify-content:flex-end;padding-bottom: 80px; align-items: center; }
     
     /* [수정] 이미지 속 느낌을 살린 고급스러운 버튼 스타일 */
     .btn { 
@@ -47,7 +47,7 @@
 <body>
 
     <div id="game-container">
-        <div id="start-screen" class="screen" style="display: flex; background-image: url('start.png');">
+        <div id="start-screen" class="screen" style="display: flex; background-image: url('start.PNG');">
             <button id="start-btn" class="btn">로딩 중...</button>
         </div>
         <div id="main-screen" class="screen">
@@ -63,7 +63,7 @@
 
     <script>
         // --- 1. 이미지 미리 로딩 (핵심) ---
-        const imageFiles = ['center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.jpeg', 'success.jpeg', 'caught.jpeg'];
+        const imageFiles = ['center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.PNG', 'success.jpeg', 'caught.jpeg'];
         const preloadedImages = {};
         let loadedCount = 0;
 
