@@ -3,52 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <title>양숙비 몰래 계화탕 버리기!</title>
-   <style>
-    body { margin: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Malgun Gothic', serif; }
-    #game-container { position: relative; width: 800px; height: 600px; background-color: #000; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
-    .screen { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; flex-direction: column; justify-content:flex-end;padding-bottom: 80px; align-items: center; }
-    
-    /* [수정] 이미지 속 느낌을 살린 고급스러운 버튼 스타일 */
-    .btn { 
-        padding: 15px 50px; 
-        font-size: 26px; 
-        font-weight: bold; 
-        color: #fff; 
-        background: linear-gradient(135deg, #b8860b 0%, #5d4a1f 100%); /* 금색 그라데이션 */
-        border: 2px solid #daa520; 
-        border-radius: 30px; /* 둥근 버튼 */
-        cursor: pointer; 
-        transition: 0.3s; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.2);
-        text-shadow: 1px 1px 2px #000;
-    }
-    .btn:hover { 
-        background: linear-gradient(135deg, #daa520 0%, #8b6b23 100%);
-        transform: scale(1.05); 
-        border-color: #fff;
-    }
+    <style>
+        body { margin: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Malgun Gothic', serif; }
+        #game-container { position: relative; width: 800px; height: 600px; background-color: #000; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
+        .screen { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; flex-direction: column; justify-content:flex-end; padding-bottom: 80px; align-items: center; }
+        
+        /* [수정] 이미지 속 선택지 느낌의 고급스러운 버튼/박스 스타일 */
+        .btn { 
+            padding: 15px 50px; 
+            font-size: 26px; font-weight: bold; color: #eecf87; 
+            background: rgba(40, 20, 10, 0.85); /* 이미지 속 반투명 갈색 느낌 */
+            border: 2px solid #b8860b; /* 황금빛 테두리 */
+            border-radius: 15px; /* 약간의 곡선 */
+            cursor: pointer; transition: 0.3s;
+            text-shadow: 1px 1px 2px #000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .btn:hover { background: rgba(60, 30, 15, 0.95); border-color: #fff; transform: scale(1.05); }
 
-    /* [수정] 점수판을 선택지 말풍선처럼 변경 */
-    #score-box { 
-        position: absolute; 
-        top: 30px; 
-        right: 30px; 
-        background: rgba(40, 20, 10, 0.8); 
-        padding: 15px 25px; 
-        border: 1px solid #b8860b;
-        border-radius: 20px; 
-        font-size: 22px; 
-        z-index: 10; 
-        color: #eecf87; /* 금빛 글자색 */
-        text-shadow: 1px 1px 1px #000;
-    }
-</style>
+        /* [수정] 영화 자막 스타일 자막 */
+        #subtitle {
+            position: absolute; bottom: 150px; width: 80%;
+            color: #fff; font-size: 22px; text-shadow: 2px 2px 4px #000;
+            text-align: center; padding: 15px;
+            background: rgba(0, 0, 0, 0.4); /* 영화 자막의 반투명 배경 */
+            pointer-events: none;
+        }
+
+        #score-box { 
+            position: absolute; top: 30px; right: 30px; 
+            background: rgba(40, 20, 10, 0.8); padding: 15px 25px; 
+            border: 1px solid #b8860b; border-radius: 20px; 
+            font-size: 22px; z-index: 10; color: #eecf87;
+        }
+    </style>
 </head>
 <body>
 
     <div id="game-container">
         <div id="start-screen" class="screen" style="display: flex; background-image: url('start.PNG');">
-            <button id="start-btn" class="btn">로딩 중...</button>
+            <div id="subtitle"></div> <button id="start-btn" class="btn" style="display: none;">계화탕을 받는 척한다</button>
         </div>
         <div id="main-screen" class="screen">
             <div id="score-box">Score: <span id="score">0</span> / 100</div>
@@ -62,43 +56,54 @@
     </div>
 
     <script>
-        // --- 1. 이미지 미리 로딩 (핵심) ---
         const imageFiles = ['center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.PNG', 'success.jpeg', 'caught.jpeg'];
         const preloadedImages = {};
         let loadedCount = 0;
 
+        // 이미지 로딩 및 시작 로직
         imageFiles.forEach(src => {
             const img = new Image();
             img.src = src;
             img.onload = () => {
                 loadedCount++;
-                if (loadedCount === imageFiles.length) {
-                    document.getElementById('start-btn').textContent = "게임 시작";
-                }
+                if (loadedCount === imageFiles.length) startSequence();
             };
             preloadedImages[src] = img;
         });
 
-        // --- 2. 게임 변수 ---
-        let score = 0, isGameOver = false, currentState = 'center';
-        const mainScreen = document.getElementById('main-screen');
+        function startSequence() {
+            const subtitle = document.getElementById('subtitle');
+            const startBtn = document.getElementById('start-btn');
+            const text = "이모인 양숙비가 준 계화탕이 수상하다고 느낀 당신은...";
+            
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    subtitle.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                } else {
+                    startBtn.style.display = "block"; // 타이핑 완료 후 버튼 표시
+                }
+            }
+            type();
+        }
 
         document.getElementById('start-btn').addEventListener('click', () => {
-            if (loadedCount < imageFiles.length) return;
             document.getElementById('start-screen').style.display = 'none';
-            mainScreen.style.display = 'flex';
+            document.getElementById('main-screen').style.display = 'flex';
             updateDisplay('center');
             planNextStateChange();
         });
 
-        // --- 3. 이미지 즉시 전환 함수 ---
+        let score = 0, isGameOver = false, currentState = 'center';
+        const mainScreen = document.getElementById('main-screen');
+
         function updateDisplay(key) {
-            // 미리 로딩된 객체의 src를 가져와서 즉시 교체
             mainScreen.style.backgroundImage = `url('${preloadedImages[key + '.png'] ? key + '.png' : key + '.jpeg'}')`;
             document.getElementById('score').textContent = score;
         }
 
-        // --- 4. 시선 변경 및 입력 처리 ---
         function changeState() {
             if (isGameOver) return;
             currentState = (currentState === 'left' || currentState === 'right') ? 'center' : (Math.random() < 0.5 ? 'left' : 'right');
@@ -107,25 +112,15 @@
         }
 
         function planNextStateChange() {
-            // 10점마다 단계가 오름 (0점: 0단계, 10점: 1단계, 20점: 2단계...)
             const stage = Math.floor(score / 10);
-            
-            // 각 단계마다 대기 시간을 150ms씩 줄임
-            // 최소 시간(minDelay): 1500ms에서 시작해 500ms까지만 줄어듦
-            // 최대 시간(maxDelay): 3000ms에서 시작해 1500ms까지만 줄어듦
             const reduction = stage * 150;
-            
             const minDelay = Math.max(500, 1500 - reduction); 
             const maxDelay = Math.max(1500, 3000 - reduction); 
-            
-            const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay;
-            
-            // 타이머 설정
-            setTimeout(changeState, randomDelay);
+            setTimeout(changeState, Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay);
         }
 
         window.addEventListener('keydown', (e) => {
-            if (isGameOver || mainScreen.style.display !== 'flex' || e.repeat) return;
+            if (isGameOver || mainScreen.style.display !== 'flex') return;
             if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 if (currentState === 'center') endGame(false);
                 else if ((currentState === 'right' && e.key === 'ArrowLeft') || (currentState === 'left' && e.key === 'ArrowRight')) {
@@ -134,10 +129,6 @@
                     if (score >= 100) endGame(true);
                 } else endGame(false);
             }
-        });
-
-        window.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') updateDisplay(currentState);
         });
 
         function endGame(isSuccess) {
