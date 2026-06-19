@@ -41,7 +41,7 @@
             color: #fff; 
             font-size: 24px; 
             text-shadow: 2px 2px 4px #000;
-            font-family: 'Batang', 'Nanum Myeongjo', 'AppleMyungjo', serif; /* 궁서체 우선 적용 */
+            font-family: 'Batang', 'Nanum Myeongjo', 'AppleMyungjo', serif; 
             text-align: center; 
             padding: 15px;
             background: rgba(0, 0, 0, 0.2); 
@@ -60,7 +60,7 @@
 <body>
 
     <div id="game-container">
-        <div id="start-screen" class="screen" style="display: flex; background-image: url('start.PNG');">
+        <div id="start-screen" class="screen" style="display: flex; background-image: url('start.png');">
             <div id="subtitle"></div> <button id="start-btn" class="btn" style="display: none;">계화탕을 받는 척한다</button>
         </div>
         <div id="main-screen" class="screen">
@@ -79,7 +79,7 @@
 
         // --- 1. 이미지 미리 로딩 (핵심) ---
 
-        const imageFiles = ['center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.PNG', 'success.jpeg', 'caught.jpeg'];
+        const imageFiles = ['center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.png', 'success.jpeg', 'caught.jpeg'];
 
         const preloadedImages = {};
 
