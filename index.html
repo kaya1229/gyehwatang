@@ -28,10 +28,7 @@
 
     <div id="game-container">
         <div id="first-screen" class="screen" style="display: flex; background-image: url('first.png');">
-            <div class="btn-group">
-                <button id="first-btn" class="btn">이야기 시작하기</button>
-                <button id="info-btn" class="btn">설명보기</button>
-            </div>
+            <button id="first-btn" class="btn">이야기 시작하기</button>
         </div>
 
         <div id="page-screen" class="screen" style="background-image: url('page.png');">
@@ -40,7 +37,10 @@
 
         <div id="start-screen" class="screen" style="background-image: url('start.png');">
             <div id="subtitle"></div> 
-            <button id="start-btn" class="btn" style="display: none;">계화탕을 받는 척한다</button>
+            <div id="btn-container" class="btn-group" style="display: none;">
+                <button id="info-btn" class="btn">잠시 고민한다</button>
+                <button id="start-btn" class="btn">계화탕을 받는 척한다</button>
+            </div>
         </div>
         <div id="main-screen" class="screen">
             <div id="score-box">Score: <span id="score">0</span> / 100</div>
@@ -81,7 +81,7 @@
         // 돌아가기 버튼
         document.getElementById('back-btn').addEventListener('click', () => {
             document.getElementById('page-screen').style.display = 'none';
-            document.getElementById('first-screen').style.display = 'flex';
+            document.getElementById('start-screen').style.display = 'flex';
         });
 
         function startSequence() {
