@@ -132,6 +132,10 @@
             }
         });
 
+         window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') updateDisplay(currentState);
+        });
+
         function endGame(isSuccess) {
             isGameOver = true;
             if (stateTimer) clearTimeout(stateTimer);
