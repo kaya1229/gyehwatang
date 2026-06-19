@@ -42,10 +42,10 @@
             <div id="score-box">Score: <span id="score">0</span> / 100</div>
         </div>
         <div id="success-screen" class="screen" style="background-image: url('success.jpeg');">
-            <button onclick="location.reload()" class="btn">다시하기</button>
+            <button onclick="restartGame()" class="btn">다시하기</button>
         </div>
         <div id="caught-screen" class="screen" style="background-image: url('caught.jpeg');">
-            <button onclick="location.reload()" class="btn">다시하기</button>
+            <button onclick="restartGame()" class="btn">다시하기</button>
         </div>
     </div>
 
@@ -350,6 +350,28 @@
 
 
         }
+        function restartGame() {
+    // 1. 모든 화면 숨기기
+    document.getElementById('success-screen').style.display = 'none';
+    document.getElementById('caught-screen').style.display = 'none';
+    
+    // 2. start-screen 표시
+    const startScreen = document.getElementById('start-screen');
+    startScreen.style.display = 'flex';
+    
+    // 3. 게임 변수 초기화
+    score = 0;
+    isGameOver = false;
+    currentState = 'center';
+    
+    // 4. 자막 초기화 및 타이핑 재실행
+    const subtitle = document.getElementById('subtitle');
+    const startBtn = document.getElementById('start-btn');
+    subtitle.textContent = ""; // 자막 내용 비우기
+    startBtn.style.display = "none"; // 버튼 숨기기
+    
+    startSequence(); // 다시 자막 타이핑 시작
+}
 
 
 
