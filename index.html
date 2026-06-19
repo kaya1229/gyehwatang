@@ -50,13 +50,13 @@
 
         <div id="start-screen" class="screen" style="background-image: url('start.png');">
             <div id="subtitle"></div> 
-            <div id="btn-container" class="btn-group" style="display: none;margin-top: 300px; ">
+            <div id="btn-container" class="btn-group" style="display: none;margin-top: 350px; ">
                 <button id="info-btn" class="btn"style="margin-right: 80px;">잠시 고민한다</button>
                 <button id="start-btn" class="btn" >계화탕을 받는 척한다</button>
             </div>
         </div>
         <div id="main-screen" class="screen">
-            <div id="score-box">점수: <span id="score">0</span> / 100</div>
+            <div id="score-box">점수: <span id="score"> 0</span> / 100</div>
         </div>
         <div id="success-screen" class="screen" style="background-image: url('success.png');">
     <div id="success-subtitle"></div> 
@@ -191,7 +191,7 @@
     const screen = isSuccess ? document.getElementById('success-screen') : document.getElementById('caught-screen');
     const subtitle = isSuccess ? document.getElementById('success-subtitle') : document.getElementById('caught-subtitle');
     const overlay = isSuccess ? document.getElementById('success-overlay') : document.getElementById('score-overlay');
-    const text = isSuccess ? "오늘의 계화탕을 피한 당신은\n스스로 이 궁중에서 살아남기로 결심했다..." : "자신을 의심한 당신을 양숙비는 용서하지 않았다....";
+    const text = isSuccess ? "오늘의 계화탕을 피한 당신은 <br>스스로 이 궁중에서 살아남기로 결심했다..." : "자신을 의심한 당신을 양숙비는 용서하지 않았다....";
 
     screen.style.display = 'flex';
     subtitle.textContent = "";
