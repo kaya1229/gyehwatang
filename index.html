@@ -53,6 +53,7 @@
         const imageFiles = ['first.png', 'center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.png', 'success.jpeg', 'caught.jpeg'];
         const preloadedImages = {};
         let loadedCount = 0;
+        let score = 0, isGameOver = false, currentState = 'center', stateTimer = null;
 
         imageFiles.forEach(src => {
             const img = new Image();
@@ -71,6 +72,7 @@
         function startSequence() {
             const subtitle = document.getElementById('subtitle');
             const startBtn = document.getElementById('start-btn');
+            subtitle.textContent = ""; // 재시작시 초기화
             const text = "이모인 양숙비가 준 계화탕이 수상하다고 느낀 당신은...";
             let i = 0;
             function type() {
@@ -85,301 +87,67 @@
             type();
         }
 
-        // 2단계 -> 게임 시작
+        // 2단계 -> 게임 시작 (중복 리스너 제거)
         document.getElementById('start-btn').addEventListener('click', () => {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('main-screen').style.display = 'flex';
+            score = 0;
+            isGameOver = false;
+            currentState = 'center';
             updateDisplay('center');
             planNextStateChange();
         });
-
-        let score = 0, isGameOver = false, currentState = 'center';
-
-
-
-        const mainScreen = document.getElementById('main-screen');
-
-
-
-
-
-
-
-        document.getElementById('start-btn').addEventListener('click', () => {
-
-
-
-            if (loadedCount < imageFiles.length) return;
-
-
-
-            document.getElementById('start-screen').style.display = 'none';
-
-
-
-            mainScreen.style.display = 'flex';
-
-
-
-            updateDisplay('center');
-
-
-
-            planNextStateChange();
-
-
-
-        });
-
-
-
-
-
-
-
-        // --- 3. 이미지 즉시 전환 함수 ---
-
-
 
         function updateDisplay(key) {
-
-
-
-            // 미리 로딩된 객체의 src를 가져와서 즉시 교체
-
-
-
-            mainScreen.style.backgroundImage = `url('${preloadedImages[key + '.png'] ? key + '.png' : key + '.jpeg'}')`;
-
-
-
+            document.getElementById('main-screen').style.backgroundImage = `url('${preloadedImages[key + '.png'] ? key + '.png' : key + '.jpeg'}')`;
             document.getElementById('score').textContent = score;
-
-
-
         }
-
-
-
-
-
-
-
-        // --- 4. 시선 변경 및 입력 처리 ---
-
-
 
         function changeState() {
-
-
-
             if (isGameOver) return;
-
-
-
             currentState = (currentState === 'left' || currentState === 'right') ? 'center' : (Math.random() < 0.5 ? 'left' : 'right');
-
-
-
             updateDisplay(currentState);
-
-
-
             planNextStateChange();
-
-
-
         }
-
-
-
-
-
-
 
         function planNextStateChange() {
-
-
-
-            // 10점마다 단계가 오름 (0점: 0단계, 10점: 1단계, 20점: 2단계...)
-
-
-
+            if (stateTimer) clearTimeout(stateTimer);
             const stage = Math.floor(score / 10);
-
-
-
-            
-
-
-
-            // 각 단계마다 대기 시간을 150ms씩 줄임
-
-
-
-            // 최소 시간(minDelay): 1500ms에서 시작해 500ms까지만 줄어듦
-
-
-
-            // 최대 시간(maxDelay): 3000ms에서 시작해 1500ms까지만 줄어듦
-
-
-
             const reduction = stage * 150;
-
-
-
-            
-
-
-
             const minDelay = Math.max(1000, 2000 - reduction); 
-
-
-
             const maxDelay = Math.max(2000, 4000 - reduction); 
-
-
-
-            
-
-
-
             const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay;
-
-
-
-            
-
-
-
-            // 타이머 설정
-
-
-
-            setTimeout(changeState, randomDelay);
-
-
-
+            stateTimer = setTimeout(changeState, randomDelay);
         }
-
-
-
-
-
-
 
         window.addEventListener('keydown', (e) => {
-
-
-
-            if (isGameOver || mainScreen.style.display !== 'flex' || e.repeat) return;
-
-
-
+            if (isGameOver || document.getElementById('main-screen').style.display !== 'flex' || e.repeat) return;
             if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-
-
-
                 if (currentState === 'center') endGame(false);
-
-
-
                 else if ((currentState === 'right' && e.key === 'ArrowLeft') || (currentState === 'left' && e.key === 'ArrowRight')) {
-
-
-
                     score++;
-
-
-
                     updateDisplay(currentState === 'right' ? 'key_l' : 'key_r');
-
-
-
                     if (score >= 100) endGame(true);
-
-
-
                 } else endGame(false);
-
-
-
             }
-
-
-
         });
-
-
-
-
-
-
-
-        window.addEventListener('keyup', (e) => {
-
-
-
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') updateDisplay(currentState);
-
-
-
-        });
-
-
-
-
-
-
 
         function endGame(isSuccess) {
-
-
-
             isGameOver = true;
-
-
-
-            mainScreen.style.display = 'none';
-
-
-
+            if (stateTimer) clearTimeout(stateTimer);
+            document.getElementById('main-screen').style.display = 'none';
             document.getElementById(isSuccess ? 'success-screen' : 'caught-screen').style.display = 'flex';
-
-
-
         }
+
         function restartGame() {
-    // 1. 모든 화면 숨기기
-    document.getElementById('success-screen').style.display = 'none';
-    document.getElementById('caught-screen').style.display = 'none';
-    
-    // 2. start-screen 표시
-    const startScreen = document.getElementById('start-screen');
-    startScreen.style.display = 'flex';
-    
-    // 3. 게임 변수 초기화
-    score = 0;
-    isGameOver = false;
-    currentState = 'center';
-    
-    // 4. 자막 초기화 및 타이핑 재실행
-    const subtitle = document.getElementById('subtitle');
-    const startBtn = document.getElementById('start-btn');
-    subtitle.textContent = ""; // 자막 내용 비우기
-    startBtn.style.display = "none"; // 버튼 숨기기
-    
-    startSequence(); // 다시 자막 타이핑 시작
-}
-
-
-
+            document.getElementById('success-screen').style.display = 'none';
+            document.getElementById('caught-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            startSequence();
+        }
     </script>
-
-
-
 </body>
+</html>
 
 
 
