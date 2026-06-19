@@ -173,7 +173,7 @@
                 else if ((currentState === 'right' && e.key === 'ArrowLeft') || (currentState === 'left' && e.key === 'ArrowRight')) {
                     score++;
                     updateDisplay(currentState === 'right' ? 'key_l' : 'key_r');
-                    if (score >= 100) endGame(true);
+                    if (score >= 10) endGame(true);
                 } else endGame(false);
             }
         });
