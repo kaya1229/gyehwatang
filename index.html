@@ -39,6 +39,9 @@
 </head>
 <body>
 
+    <audio id="bgm-main" src="shadows_in_the_palace.mp3" loop></audio>
+    <audio id="bgm-game" src="breath_before_the_strike.mp3" loop></audio>
+
     <div id="game-container">
         <div id="first-screen" class="screen" style="display: flex; background-image: url('first.png');">
             <button id="first-btn" class="btn" style="margin-top: 370px;">이야기 시작하기</button>
@@ -85,6 +88,23 @@
     </div>
 
     <script>
+
+        const bgmMain = document.getElementById('bgm-main');
+const bgmGame = document.getElementById('bgm-game');
+
+// 음악을 전환하는 함수 (하나를 끄고 하나를 켭니다)
+function playMusic(track, volume) {
+    bgmMain.pause(); bgmGame.pause(); // 일단 다 멈춤
+    track.volume = volume;            // 볼륨 설정
+    track.play().catch(e => console.log("재생 대기 중"));
+}
+
+// 브라우저의 '클릭 후 소리 재생' 정책을 위한 클릭 이벤트
+window.addEventListener('click', () => {
+    if (bgmMain.paused && document.getElementById('first-screen').style.display !== 'none') {
+        playMusic(bgmMain, 0.4);
+    }
+}, { once: true });
         const imageFiles = ['first.png', 'page.png', 'center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.png', 'success.png', 'caught.jpeg'];
         const preloadedImages = {};
         let loadedCount = 0;
@@ -142,6 +162,7 @@
             currentState = 'center';
             updateDisplay('center');
             planNextStateChange();
+            playMusic(bgmGame, 0.25);
         });
 
         function updateDisplay(key) {
@@ -216,12 +237,14 @@
         }
     }
     type();
+    playMusic(bgmMain, 0.4);
 }
         function restartGame() {
             document.getElementById('success-screen').style.display = 'none';
             document.getElementById('caught-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'flex';
             startSequence();
+            playMusic(bgmMain, 0.4);
         }
     </script>
 </body>
