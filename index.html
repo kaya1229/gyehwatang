@@ -173,7 +173,7 @@
                 else if ((currentState === 'right' && e.key === 'ArrowLeft') || (currentState === 'left' && e.key === 'ArrowRight')) {
                     score++;
                     updateDisplay(currentState === 'right' ? 'key_l' : 'key_r');
-                    if (score >= 10) endGame(true);
+                    if (score >= 100) endGame(true);
                 } else endGame(false);
             }
         });
@@ -192,7 +192,7 @@
     const overlay = isSuccess ? document.getElementById('success-overlay') : document.getElementById('score-overlay');
     
     // 1. <br> 대신 | 기호 사용
-    const rawText = isSuccess ? "오늘의 계화탕을 피한 당신은|스스로 이 궁중에서 살아남기로 결심했다..." : "자신을 의심한 당신을|양숙비는 용서하지 않았다...";
+    const rawText = isSuccess ? "오늘의 계화탕을 피한 당신은|스스로 이 궁중에서 살아남기로 결심했다..." : " 양숙비는 자신을 의심한 당신을 용서하지 않았다...";
 
     screen.style.display = 'flex';
     subtitle.innerHTML = ""; // 초기화
