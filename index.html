@@ -187,28 +187,30 @@
     if (stateTimer) clearTimeout(stateTimer);
     document.getElementById('main-screen').style.display = 'none';
 
-    // 대상 화면과 요소 결정
     const screen = isSuccess ? document.getElementById('success-screen') : document.getElementById('caught-screen');
     const subtitle = isSuccess ? document.getElementById('success-subtitle') : document.getElementById('caught-subtitle');
     const overlay = isSuccess ? document.getElementById('success-overlay') : document.getElementById('score-overlay');
-    const text = isSuccess ? "오늘의 계화탕을 피한 당신은<br>스스로 이 궁중에서 살아남기로 결심했다..." : "자신을 의심한 당신을 양숙비는 용서하지 않았다...";
+    
+    // 1. <br> 대신 | 기호 사용
+    const rawText = isSuccess ? "오늘의 계화탕을 피한 당신은|스스로 이 궁중에서 살아남기로 결심했다..." : "자신을 의심한 당신을|양숙비는 용서하지 않았다...";
 
     screen.style.display = 'flex';
-    subtitle.textContent = "";
+    subtitle.innerHTML = ""; // 초기화
     overlay.style.display = 'none';
     overlay.style.opacity = '0';
 
     let i = 0;
     function type() {
-        if (i < text.length) {
-            subtitle.innerHTML += text.charAt(i);
+        if (i < rawText.length) {
+            // 2. 한 글자씩 추가하되, | 기호를 <br>로 즉시 변환하여 출력
+            let currentDisplay = rawText.substring(0, i + 1);
+            subtitle.innerHTML = currentDisplay.replace(/\|/g, '<br>');
+            
             i++;
             setTimeout(type, 100);
         } else {
             setTimeout(() => {
-                // 레이아웃 보이기
                 overlay.style.display = 'flex';
-                // 페이드인 효과
                 setTimeout(() => { overlay.style.opacity = '1'; }, 50);
             }, 1500);
         }
