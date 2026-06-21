@@ -220,7 +220,7 @@ function playMusic(track, targetVolume) {
 // 브라우저의 '클릭 후 소리 재생' 정책을 위한 클릭 이벤트
 window.addEventListener('click', () => {
     if (bgmMain.paused && document.getElementById('first-screen').style.display !== 'none') {
-        playMusic(bgmMain, 0.3);
+        playMusic(bgmMain, 0.2);
     }
 }, { once: true });
         const imageFiles = ['first.png', 'page.png', 'center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.png', 'success.png', 'caught.jpeg'];
@@ -237,7 +237,7 @@ window.addEventListener('click', () => {
 
         // 1단계 -> 2단계 이동
         document.getElementById('first-btn').addEventListener('click', () => {
-            playMusic(bgmMain, 0.1);
+            playMusic(bgmMain, 0.15);
             document.getElementById('first-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'flex';
             startSequence();
@@ -377,7 +377,7 @@ window.addEventListener('click', () => {
             document.getElementById('caught-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'flex';
             startSequence();
-            playMusic(bgmMain, 0.2);
+            playMusic(bgmMain, 0.15);
         }
         function toggleInfo() {
     const popup = document.getElementById('info-popup');
