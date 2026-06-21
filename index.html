@@ -35,13 +35,16 @@
 }
         #start-message {
     position: absolute;
+            top: 200px;
     font-size: 32px;
     color: #eecf87;
     font-family: 'Batang', 'Nanum Myeongjo', serif;
     text-shadow: 2px 2px 5px #000;
     z-index: 100;
     opacity: 0; /* 처음엔 투명하게 */
-    transition: opacity 0.5s ease-in-out;
+            transform: scale(0.9);
+    transition: opacity 0.5s ease-in-out; transform 0.5s ease-in-out;
+            background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px;
 }
         #subtitle,#caught-subtitle,#success-subtitle { position: absolute; top: 50px; width: 80%; color: #fff; font-size: 24px; text-shadow: 2px 2px 4px #000; font-family: 'Batang', 'Nanum Myeongjo', serif; text-align: center; padding: 15px; background: rgba(0, 0, 0, 0.25); pointer-events: none; z-index: 100;line-height: 1.6; }
         #score-box { position: absolute; top: 30px; right: 30px; background: rgba(40, 20, 10, 0.8); padding: 15px 25px; border: 1px solid #b8860b; border-radius: 20px; font-family: 'Batang', 'Nanum Myeongjo', serif; font-size: 22px; z-index: 10; color: #eecf87; }
@@ -158,7 +161,7 @@ function playMusic(track, targetVolume) {
 // 브라우저의 '클릭 후 소리 재생' 정책을 위한 클릭 이벤트
 window.addEventListener('click', () => {
     if (bgmMain.paused && document.getElementById('first-screen').style.display !== 'none') {
-        playMusic(bgmGame, 0.3);
+        playMusic(bgmMain, 0.3);
     }
 }, { once: true });
         const imageFiles = ['first.png', 'page.png', 'center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.png', 'success.png', 'caught.jpeg'];
@@ -175,7 +178,7 @@ window.addEventListener('click', () => {
 
         // 1단계 -> 2단계 이동
         document.getElementById('first-btn').addEventListener('click', () => {
-            playMusic(bgmMain, 0.4);
+            playMusic(bgmGame, 0.2);
             document.getElementById('first-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'flex';
             startSequence();
@@ -218,10 +221,15 @@ window.addEventListener('click', () => {
             document.getElementById('main-screen').style.display = 'flex';
 
             const msg = document.getElementById('start-message');
+            
             msg.style.opacity = '1';
+            msg.style.transform = 'scale(1)';
     
             // 2초 뒤에 메시지 사라지게 하기
-            setTimeout(() => { msg.style.opacity = '0';}, 2000);
+            setTimeout(() => {
+        msg.style.opacity = '0';
+        msg.style.transform = 'scale(0.9)'; // 사라질 때도 다시 작아지게
+    }, 2000);
             
             score = 0;
             isGameOver = false;
