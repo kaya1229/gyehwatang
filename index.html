@@ -186,11 +186,14 @@ window.addEventListener('click', () => {
         document.getElementById('start-btn').addEventListener('click', () => {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('main-screen').style.display = 'flex';
+            bgmMain.pause();
+            bgmGame.pause();
             score = 0;
             isGameOver = false;
             currentState = 'center';
             updateDisplay('center');
             planNextStateChange();
+            
         });
 
         function updateDisplay(key) {
