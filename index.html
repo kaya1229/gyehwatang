@@ -8,38 +8,19 @@
         #game-container { position: relative; width: 880px; height: 660px; background-color: #000; box-shadow: 0 0 20px rgba(0,0,0,0.7); }
         .screen { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; flex-direction: column; justify-content: center; align-items: center; }
         
-        .btn-group { display: flex; gap: 80px; }
-        .btn { 
-            padding: 15px 50px; font-size: 26px; font-weight: bold; color: #eecf87; 
-            background: rgba(40, 20, 10, 0.85); border: 2px solid #b8860b; border-radius: 15px; cursor: pointer; transition: 0.3s;
-            text-shadow: 1px 1px 2px #000; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            font-family: 'Batang', 'Nanum Myeongjo', serif;
-        }
+        .btn-group { display: flex; gap: 200px; }
+        .btn { padding: 15px 50px; font-size: 26px; font-weight: bold; color: #eecf87; background: rgba(40, 20, 10, 0.85); border: 2px solid #b8860b; border-radius: 15px; cursor: pointer; transition: 0.3s; text-shadow: 1px 1px 2px #000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-family: 'Batang', serif; }
         .btn:hover { background: rgba(60, 30, 15, 0.95); transform: scale(1.05); border-color: #fff; }
-        .btn-small { padding: 8px 20px; font-size: 14px; margin-top: 15px; }
+        .btn-small { padding: 8px 20px; font-size: 12px; margin-top: 15px; }
 
-        .score-overlay {
-            position: absolute; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8);
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            opacity: 0; transition: opacity 1.5s ease-in-out; z-index: 200;
-        }
-        #start-message {
-            position: absolute; top: 200px; font-size: 32px; color: #eecf87; font-family: 'Batang', serif;
-            text-shadow: 2px 2px 5px #000; z-index: 100; opacity: 0; transform: scale(0.9);
-            transition: opacity 0.5s, transform 0.5s; background: rgba(40, 20, 10, 0.85); padding: 20px; border-radius: 10px;
-        }
-        #subtitle, #caught-subtitle, #success-subtitle { 
-            position: absolute; top: 50px; width: 80%; color: #fff; font-size: 24px; 
-            text-shadow: 2px 2px 4px #000; font-family: 'Batang', serif; text-align: center; 
-            padding: 15px; background: rgba(0, 0, 0, 0.25); z-index: 100; line-height: 1.6; 
-        }
-        #score-box { 
-            position: absolute; top: 30px; right: 30px; background: rgba(40, 20, 10, 0.8); 
-            padding: 15px 25px; border: 1px solid #b8860b; border-radius: 20px; font-family: 'Batang', serif; font-size: 22px; color: #eecf87; 
-        }
-
-        /* 공통 정보 창 및 제작자 텍스트 */
+        .score-overlay { position: absolute; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: opacity 1.5s ease-in-out; z-index: 200; }
+        
+        #start-message { position: absolute; top: 200px; font-size: 32px; color: #eecf87; font-family: 'Batang', serif; text-shadow: 2px 2px 5px #000; z-index: 100; opacity: 0; transform: scale(0.9); transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; background: rgba(40, 20, 10, 0.85); padding: 20px; border-radius: 10px; }
+        #subtitle, #caught-subtitle, #success-subtitle { position: absolute; top: 50px; width: 80%; color: #fff; font-size: 24px; text-shadow: 2px 2px 4px #000; font-family: 'Batang', serif; text-align: center; padding: 15px; background: rgba(0, 0, 0, 0.25); pointer-events: none; z-index: 100; line-height: 1.6; }
+        #score-box { position: absolute; top: 30px; right: 30px; background: rgba(40, 20, 10, 0.8); padding: 15px 25px; border: 1px solid #b8860b; border-radius: 20px; font-family: 'Batang', serif; font-size: 22px; z-index: 10; color: #eecf87; }
+        
         .creator-text { position: absolute; bottom: 15px; right: 20px; color: #eecf87; font-family: 'Batang', serif; font-size: 14px; cursor: pointer; opacity: 0.7; z-index: 600; }
+        .creator-text:hover { opacity: 1; }
         .info-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .info-content { background: #000; border: 1px solid #eecf87; padding: 20px; color: #fff; text-align: center; }
     </style>
@@ -50,38 +31,33 @@
     <audio id="bgm-game" src="Breath_Before_the_Strike.mp3" loop></audio>
 
     <div id="game-container">
-        <!-- 1. 시작 화면 -->
         <div id="first-screen" class="screen" style="display: flex; background-image: url('first.png');">
             <button id="first-btn" class="btn" style="margin-top: 370px;">이야기 시작하기</button>
         </div>
 
-        <!-- 2. 설명 화면 -->
         <div id="page-screen" class="screen" style="background-image: url('page.png');">
             <button id="back-btn" class="btn" style="margin-top: 500px;">돌아가기</button>
         </div>
 
-        <!-- 3. 선택 화면 -->
         <div id="start-screen" class="screen" style="background-image: url('start.png');">
             <div id="subtitle"></div> 
             <div id="btn-container" class="btn-group" style="display: none; margin-top: 400px;">
-                <button id="info-btn" class="btn" style ="margin-right : 100px;">잠시 고민한다</button>
+                <button id="info-btn" class="btn" style="margin-right: 80px;">잠시 고민한다</button>
                 <button id="start-btn" class="btn">계화탕을 받는 척한다</button>
             </div>
         </div>
 
-        <!-- 4. 게임 본 화면 -->
         <div id="main-screen" class="screen">
             <div id="start-message">양숙비의 눈을 피해 계화탕을 흘려버리세요!</div>
             <div id="score-box">점수: <span id="score">0</span> / 100</div>
         </div>
 
-        <!-- 5. 결과 화면 (성공/실패) -->
         <div id="success-screen" class="screen" style="background-image: url('success.png');">
-            <div id="success-subtitle"></div> 
+            <div id="success-subtitle"></div>
             <div id="success-overlay" class="score-overlay">
-                <div style="position: absolute; width: 100%; height: 100%; background-image: url('score.jpeg'); background-size: cover;"></div>
+                <div style="position: absolute; width: 100%; height: 100%; background-image: url('score.jpeg'); background-size: cover; background-position: center;"></div>
                 <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; margin-top: 260px;">
-                    <div id="final-score-success" style="font-size: 150px; color: #eecf87; font-weight: bold; margin-bottom: 50px;">0</div>
+                    <div id="final-score-success" style="font-size: 150px; color: #eecf87; font-weight: bold; margin-bottom: 50px; text-shadow: 2px 2px 10px #000;">0</div>
                     <button onclick="restartGame()" class="btn">다시하기</button>
                 </div>
             </div>
@@ -90,145 +66,253 @@
         <div id="caught-screen" class="screen" style="background-image: url('caught.jpeg');">
             <div id="caught-subtitle"></div>
             <div id="score-overlay" class="score-overlay">
-                <div style="position: absolute; width: 100%; height: 100%; background-image: url('score.jpeg'); background-size: cover;"></div>
+                <div style="position: absolute; width: 100%; height: 100%; background-image: url('score.jpeg'); background-size: cover; background-position: center;"></div>
                 <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; margin-top: 260px;">
-                    <div id="final-score" style="font-size: 150px; color: #eecf87; font-weight: bold; margin-bottom: 50px;">0</div>
+                    <div id="final-score" style="font-size: 150px; color: #eecf87; font-weight: bold; margin-bottom: 50px; text-shadow: 2px 2px 10px #000;">0</div>
                     <button onclick="restartGame()" class="btn">다시하기</button>
                 </div>
             </div>
         </div>
 
-        <!-- 공통 요소: 제작자 정보 및 팝업 (가장 하단에 딱 하나만 배치) -->
+        <!-- 게임 전체에서 딱 하나만 존재하는 제작자 정보 -->
         <div class="creator-text" onclick="toggleInfo()">제작자: 덕크</div>
         <div id="info-popup" class="info-overlay">
             <div class="info-content">
                 <h3>게임 정보</h3>
                 <p>성세천하 2차 창작물</p>
                 <p>제작 : 덕크(@Deokjilkk)</p>
+                <p>Gemini를 사용하여 제작됨</p>
                 <button onclick="toggleInfo()" class="btn btn-small">닫기</button>
             </div>
         </div>
     </div>
 
-    <script>
-        const bgmMain = document.getElementById('bgm-main');
-        const bgmGame = document.getElementById('bgm-game');
-        let score = 0, isGameOver = false, currentState = 'center', stateTimer = null;
+    <script>
 
-        function playMusic(track, targetVolume) {
-            const duration = 1000; const step = 20; const increment = targetVolume / (duration / step);
-            [bgmMain, bgmGame].forEach(t => {
-                if (t !== track && !t.paused) {
-                    let fadeOut = setInterval(() => {
-                        if (t.volume > increment) t.volume -= increment;
-                        else { t.pause(); t.currentTime = 0; clearInterval(fadeOut); }
-                    }, step);
-                }
-            });
-            track.volume = 0; track.play().catch(e => {});
-            let fadeIn = setInterval(() => {
-                if (track.volume < targetVolume - increment) track.volume += increment;
-                else { track.volume = targetVolume; clearInterval(fadeIn); }
-            }, step);
-        }
+        const bgmMain = document.getElementById('bgm-main');
+const bgmGame = document.getElementById('bgm-game');
 
-        function fadeOutAndPause(track, duration = 1000) {
-            if (track.paused) return;
-            const step = 50; const volumeStep = track.volume / (duration / step);
-            let fadeInterval = setInterval(() => {
-                if (track.volume > volumeStep) track.volume -= volumeStep;
-                else { track.volume = 0; track.pause(); track.currentTime = 0; clearInterval(fadeInterval); }
-            }, step);
-        }
+function playMusic(track, targetVolume) {
+    const duration = 1000; // 1초 동안 전환
+    const step = 20;       // 0.02초마다 볼륨 변경
+    const increment = targetVolume / (duration / step);
 
-        // 초기 음악 재생
-        window.addEventListener('click', () => { if (bgmMain.paused) playMusic(bgmMain, 0.2); }, { once: true });
+    // 1. 이미 재생 중인 음악이 있다면 페이드 아웃 시작
+    [bgmMain, bgmGame].forEach(t => {
+        if (t !== track && !t.paused) {
+            let fadeOut = setInterval(() => {
+                if (t.volume > increment) {
+                    t.volume -= increment;
+                } else {
+                    t.pause();
+                    t.currentTime = 0; // 재생 위치 초기화
+                    t.volume = 0;
+                    clearInterval(fadeOut);
+                }
+            }, step);
+        }
+    });
 
-        document.getElementById('first-btn').addEventListener('click', () => {
-            document.getElementById('first-screen').style.display = 'none';
-            document.getElementById('start-screen').style.display = 'flex';
-            startSequence();
-        });
+    // 2. 새 음악 준비 및 페이드 인 시작
+    track.volume = 0;
+    track.play().catch(e => console.log("재생 대기 중"));
 
-        document.getElementById('info-btn').addEventListener('click', () => {
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('page-screen').style.display = 'flex';
-        });
+    let fadeIn = setInterval(() => {
+        if (track.volume < targetVolume - increment) {
+            track.volume += increment;
+        } else {
+            track.volume = targetVolume;
+            clearInterval(fadeIn);
+        }
+    }, step);
+}
+        function fadeOutAndPause(track, duration = 1000) {
+    if (track.paused) return; // 이미 멈춰있다면 실행 안 함
+    
+    const step = 50; // 볼륨 조절 간격
+    const volumeStep = track.volume / (duration / step);
+    
+    let fadeInterval = setInterval(() => {
+        if (track.volume > volumeStep) {
+            track.volume -= volumeStep;
+        } else {
+            track.volume = 0;
+            track.pause();
+            track.currentTime = 0; // 나중에 다시 틀 때를 위해 처음으로 되돌림
+            clearInterval(fadeInterval);
+        }
+    }, step);
+}
 
-        document.getElementById('back-btn').addEventListener('click', () => {
-            document.getElementById('page-screen').style.display = 'none';
-            document.getElementById('start-screen').style.display = 'flex';
-        });
+// 브라우저의 '클릭 후 소리 재생' 정책을 위한 클릭 이벤트
+window.addEventListener('click', () => {
+    if (bgmMain.paused && document.getElementById('first-screen').style.display !== 'none') {
+        playMusic(bgmMain, 0.2);
+    }
+}, { once: true });
+        const imageFiles = ['first.png', 'page.png', 'center.png', 'left.png', 'right.png', 'key_l.png', 'key_r.png', 'start.png', 'success.png', 'caught.jpeg'];
+        const preloadedImages = {};
+        let loadedCount = 0;
+        let score = 0, isGameOver = false, currentState = 'center', stateTimer = null;
 
-        function startSequence() {
-            const subtitle = document.getElementById('subtitle');
-            subtitle.textContent = ""; const text = "이모인 양숙비가 준 계화탕이 수상하다고 느낀 당신은...";
-            let i = 0;
-            function type() {
-                if (i < text.length) { subtitle.textContent += text.charAt(i); i++; setTimeout(type, 100); }
-                else document.getElementById('btn-container').style.display = "block";
-            }
-            type();
-        }
+        imageFiles.forEach(src => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => { loadedCount++; };
+            preloadedImages[src] = img;
+        });
 
-        document.getElementById('start-btn').addEventListener('click', () => {
-            fadeOutAndPause(bgmMain, 1000);
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('main-screen').style.display = 'flex';
-            const msg = document.getElementById('start-message');
-            msg.style.opacity = '1'; msg.style.transform = 'scale(1)';
-            setTimeout(() => { msg.style.opacity = '0'; msg.style.transform = 'scale(0.9)'; }, 1500);
-            score = 0; isGameOver = false; currentState = 'center'; updateDisplay('center'); planNextStateChange();
-        });
+        // 1단계 -> 2단계 이동
+        document.getElementById('first-btn').addEventListener('click', () => {
+            playMusic(bgmMain, 0.15);
+            document.getElementById('first-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            startSequence();
+        });
+        // 설명 페이지 이동
+        document.getElementById('info-btn').addEventListener('click', () => {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('page-screen').style.display = 'flex';
+        });
 
-        function updateDisplay(key) {
-            document.getElementById('main-screen').style.backgroundImage = `url('${key}.png')`;
-            document.getElementById('score').textContent = score;
-        }
+        // 돌아가기 버튼
+        document.getElementById('back-btn').addEventListener('click', () => {
+            document.getElementById('page-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+        });
 
-        function planNextStateChange() {
-            if (stateTimer) clearTimeout(stateTimer);
-            stateTimer = setTimeout(() => {
-                if (isGameOver) return;
-                currentState = (Math.random() < 0.5 ? 'left' : 'right');
-                updateDisplay(currentState);
-                planNextStateChange();
+        function startSequence() {
+            const subtitle = document.getElementById('subtitle');
+            const btnContainer = document.getElementById('btn-container');
+            subtitle.textContent = "";
+            const text = "이모인 양숙비가 준 계화탕이 수상하다고 느낀 당신은...";
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    subtitle.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                } else {
+                    btnContainer.style.display = "block";
+                }
+            }
+            type();
+        }
+
+        // 2단계 -> 게임 시작 (중복 리스너 제거)
+        document.getElementById('start-btn').addEventListener('click', () => {
+            fadeOutAndPause(bgmMain, 1000);
+            
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('main-screen').style.display = 'flex';
+
+            const msg = document.getElementById('start-message');
+            
+            msg.style.opacity = '1';
+            msg.style.transform = 'scale(1)';
+    
+            // 2초 뒤에 메시지 사라지게 하기
+            setTimeout(() => {
+        msg.style.opacity = '0';
+        msg.style.transform = 'scale(0.9)'; // 사라질 때도 다시 작아지게
+    }, 1500);
+            
+            score = 0;
+            isGameOver = false;
+            currentState = 'center';
+            updateDisplay('center');
+            planNextStateChange();
+            
+        });
+
+        function updateDisplay(key) {
+            document.getElementById('main-screen').style.backgroundImage = `url('${preloadedImages[key + '.png'] ? key + '.png' : key + '.jpeg'}')`;
+            document.getElementById('score').textContent = score;
+        }
+
+        function changeState() {
+            if (isGameOver) return;
+            currentState = (currentState === 'left' || currentState === 'right') ? 'center' : (Math.random() < 0.5 ? 'left' : 'right');
+            updateDisplay(currentState);
+            planNextStateChange();
+        }
+
+        function planNextStateChange() {
+            if (stateTimer) clearTimeout(stateTimer);
+            const stage = Math.floor(score / 10);
+            const reduction = stage * 150;
+            const minDelay = Math.max(800, 2000 - reduction); 
+            const maxDelay = Math.max(2000, 3500 - reduction); 
+            const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay;
+            stateTimer = setTimeout(changeState, randomDelay);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (isGameOver || document.getElementById('main-screen').style.display !== 'flex' || e.repeat) return;
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                if (currentState === 'center') endGame(false);
+                else if ((currentState === 'right' && e.key === 'ArrowLeft') || (currentState === 'left' && e.key === 'ArrowRight')) {
+                    score++;
+                    updateDisplay(currentState === 'right' ? 'key_l' : 'key_r');
+                    if (score >= 100) endGame(true);
+                } else endGame(false);
+            }
+        });
+
+         window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') updateDisplay(currentState);
+        });
+
+        function endGame(isSuccess) {
+    isGameOver = true;
+    if (stateTimer) clearTimeout(stateTimer);
+    document.getElementById('main-screen').style.display = 'none';
+
+    const screen = isSuccess ? document.getElementById('success-screen') : document.getElementById('caught-screen');
+    const subtitle = isSuccess ? document.getElementById('success-subtitle') : document.getElementById('caught-subtitle');
+    const overlay = isSuccess ? document.getElementById('success-overlay') : document.getElementById('score-overlay');
+    
+    // 점수 요소를 찾아서 값을 업데이트할 준비 (HTML ID에 맞춰 수정)
+    const scoreElement = isSuccess ? document.getElementById('final-score-success') : document.getElementById('final-score');
+    
+    const rawText = isSuccess ? "오늘의 계화탕을 피한 당신은|스스로 이 궁중에서 살아남기로 결심했다..." : " 양숙비는 자신을 의심한 당신을 용서하지 않았다...";
+
+    screen.style.display = 'flex';
+    subtitle.innerHTML = ""; 
+    overlay.style.display = 'none';
+    overlay.style.opacity = '0';
+
+    let i = 0;
+    function type() {
+        if (i < rawText.length) {
+            let currentDisplay = rawText.substring(0, i + 1);
+            subtitle.innerHTML = currentDisplay.replace(/\|/g, '<br>');
+            i++;
+            setTimeout(type, 100);
+        } else {
+            // 자막 타이핑이 끝난 후 점수를 반영
+            if (scoreElement) scoreElement.textContent = score;
+            
+            setTimeout(() => {
+                overlay.style.display = 'flex';
+                setTimeout(() => { overlay.style.opacity = '1'; }, 50);
             }, 1500);
         }
-
-        window.addEventListener('keydown', (e) => {
-            if (isGameOver || document.getElementById('main-screen').style.display !== 'flex') return;
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                if ((currentState === 'right' && e.key === 'ArrowLeft') || (currentState === 'left' && e.key === 'ArrowRight')) {
-                    score++; updateDisplay('center');
-                    if (score >= 100) endGame(true);
-                } else endGame(false);
-            }
-        });
-
-        function endGame(isSuccess) {
-            isGameOver = true; if (stateTimer) clearTimeout(stateTimer);
-            document.getElementById('main-screen').style.display = 'none';
-            const screen = isSuccess ? document.getElementById('success-screen') : document.getElementById('caught-screen');
-            const overlay = isSuccess ? document.getElementById('success-overlay') : document.getElementById('score-overlay');
-            
-            // 점수 반영
-            if (isSuccess) document.getElementById('final-score-success').textContent = score;
-            else document.getElementById('final-score').textContent = score;
-
-            screen.style.display = 'flex';
-            setTimeout(() => { overlay.style.display = 'flex'; setTimeout(() => { overlay.style.opacity = '1'; }, 50); }, 1000);
-            playMusic(bgmGame, 0.2);
-        }
-
-        function restartGame() {
-            location.reload(); // 가장 깔끔한 초기화 방법
-        }
-
-        function toggleInfo() {
-            const popup = document.getElementById('info-popup');
-            popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
-        }
-    </script>
+    }
+    type();
+    playMusic(bgmGame, 0.2);
+}
+        function restartGame() {
+            document.getElementById('success-screen').style.display = 'none';
+            document.getElementById('caught-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            startSequence();
+            playMusic(bgmMain, 0.15);
+        }
+        function toggleInfo() {
+    const popup = document.getElementById('info-popup');
+    popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
+}
+    </script>
 </body>
 </html>
