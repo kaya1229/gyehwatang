@@ -119,6 +119,7 @@ window.addEventListener('click', () => {
 
         // 1단계 -> 2단계 이동
         document.getElementById('first-btn').addEventListener('click', () => {
+            playMusic(bgmMain, 0.4);
             document.getElementById('first-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'flex';
             startSequence();
