@@ -126,6 +126,23 @@ function playMusic(track, targetVolume) {
         }
     }, step);
 }
+        function fadeOutAndPause(track, duration = 1000) {
+    if (track.paused) return; // 이미 멈춰있다면 실행 안 함
+    
+    const step = 50; // 볼륨 조절 간격
+    const volumeStep = track.volume / (duration / step);
+    
+    let fadeInterval = setInterval(() => {
+        if (track.volume > volumeStep) {
+            track.volume -= volumeStep;
+        } else {
+            track.volume = 0;
+            track.pause();
+            track.currentTime = 0; // 나중에 다시 틀 때를 위해 처음으로 되돌림
+            clearInterval(fadeInterval);
+        }
+    }, step);
+}
 
 // 브라우저의 '클릭 후 소리 재생' 정책을 위한 클릭 이벤트
 window.addEventListener('click', () => {
@@ -184,10 +201,10 @@ window.addEventListener('click', () => {
 
         // 2단계 -> 게임 시작 (중복 리스너 제거)
         document.getElementById('start-btn').addEventListener('click', () => {
+            fadeOutAndPause(bgmMain, 1000);
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('main-screen').style.display = 'flex';
-            bgmMain.pause();
-            bgmGame.pause();
+            
             score = 0;
             isGameOver = false;
             currentState = 'center';
