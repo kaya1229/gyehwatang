@@ -92,11 +92,39 @@
         const bgmMain = document.getElementById('bgm-main');
 const bgmGame = document.getElementById('bgm-game');
 
-// 음악을 전환하는 함수 (하나를 끄고 하나를 켭니다)
-function playMusic(track, volume) {
-    bgmMain.pause(); bgmGame.pause(); // 일단 다 멈춤
-    track.volume = volume;            // 볼륨 설정
+function playMusic(track, targetVolume) {
+    const duration = 1000; // 1초(1000ms) 동안 전환
+    const step = 20;       // 얼마나 세밀하게 볼륨을 조절할지
+    const volumeStep = targetVolume / (duration / step);
+
+    // 1. 현재 재생 중인 음악들을 찾아 서서히 끄기
+    const allTracks = [bgmMain, bgmGame];
+    allTracks.forEach(t => {
+        if (!t.paused && t !== track) {
+            let fadeOutInterval = setInterval(() => {
+                if (t.volume > 0.05) {
+                    t.volume -= 0.05;
+                } else {
+                    t.pause();
+                    t.volume = 0; // 초기화
+                    clearInterval(fadeOutInterval);
+                }
+            }, step);
+        }
+    });
+
+    // 2. 새 음악 서서히 켜기
+    track.volume = 0;
     track.play().catch(e => console.log("재생 대기 중"));
+    
+    let fadeInInterval = setInterval(() => {
+        if (track.volume < targetVolume - volumeStep) {
+            track.volume += volumeStep;
+        } else {
+            track.volume = targetVolume;
+            clearInterval(fadeInInterval);
+        }
+    }, step);
 }
 
 // 브라우저의 '클릭 후 소리 재생' 정책을 위한 클릭 이벤트
@@ -163,7 +191,6 @@ window.addEventListener('click', () => {
             currentState = 'center';
             updateDisplay('center');
             planNextStateChange();
-            playMusic(bgmMain, 0.05);
         });
 
         function updateDisplay(key) {
