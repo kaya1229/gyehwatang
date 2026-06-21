@@ -33,6 +33,16 @@
     transition: opacity 1.5s ease-in-out;
     z-index: 200; /* 자막(100)보다 높게 설정 */
 }
+        #start-message {
+    position: absolute;
+    font-size: 32px;
+    color: #eecf87;
+    font-family: 'Batang', 'Nanum Myeongjo', serif;
+    text-shadow: 2px 2px 5px #000;
+    z-index: 100;
+    opacity: 0; /* 처음엔 투명하게 */
+    transition: opacity 0.5s ease-in-out;
+}
         #subtitle,#caught-subtitle,#success-subtitle { position: absolute; top: 50px; width: 80%; color: #fff; font-size: 24px; text-shadow: 2px 2px 4px #000; font-family: 'Batang', 'Nanum Myeongjo', serif; text-align: center; padding: 15px; background: rgba(0, 0, 0, 0.25); pointer-events: none; z-index: 100;line-height: 1.6; }
         #score-box { position: absolute; top: 30px; right: 30px; background: rgba(40, 20, 10, 0.8); padding: 15px 25px; border: 1px solid #b8860b; border-radius: 20px; font-family: 'Batang', 'Nanum Myeongjo', serif; font-size: 22px; z-index: 10; color: #eecf87; }
     </style>
@@ -59,6 +69,7 @@
             </div>
         </div>
         <div id="main-screen" class="screen">
+            <div id="start-message">양숙비의 눈을 피해 계화탕을 흘려버리세요!</div>
             <div id="score-box">점수: <span id="score"> 0</span> / 100</div>
         </div>
         <div id="success-screen" class="screen" style="background-image: url('success.png');">
@@ -202,8 +213,15 @@ window.addEventListener('click', () => {
         // 2단계 -> 게임 시작 (중복 리스너 제거)
         document.getElementById('start-btn').addEventListener('click', () => {
             fadeOutAndPause(bgmMain, 1000);
+            
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('main-screen').style.display = 'flex';
+
+            const msg = document.getElementById('start-message');
+            msg.style.opacity = '1';
+    
+            // 2초 뒤에 메시지 사라지게 하기
+            setTimeout(() => { msg.style.opacity = '0';}, 2000);
             
             score = 0;
             isGameOver = false;
