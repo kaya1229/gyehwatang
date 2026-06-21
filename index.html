@@ -44,10 +44,42 @@
     opacity: 0; /* 처음엔 투명하게 */
             transform: scale(0.9);
     transition: opacity 0.5s ease-in-out; transform 0.5s ease-in-out;
-            background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px;
+            background: rgba(40, 20, 10, 0.85); padding: 20px; border-radius: 10px;
 }
         #subtitle,#caught-subtitle,#success-subtitle { position: absolute; top: 50px; width: 80%; color: #fff; font-size: 24px; text-shadow: 2px 2px 4px #000; font-family: 'Batang', 'Nanum Myeongjo', serif; text-align: center; padding: 15px; background: rgba(0, 0, 0, 0.25); pointer-events: none; z-index: 100;line-height: 1.6; }
         #score-box { position: absolute; top: 30px; right: 30px; background: rgba(40, 20, 10, 0.8); padding: 15px 25px; border: 1px solid #b8860b; border-radius: 20px; font-family: 'Batang', 'Nanum Myeongjo', serif; font-size: 22px; z-index: 10; color: #eecf87; }
+    .creator-text {
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    color: #eecf87; /* 고전적인 금색/황토색 */
+    font-family: 'Batang', 'Nanum Myeongjo', serif;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0.7;
+    z-index: 600;
+}
+.creator-text:hover {
+    opacity: 1; /* 마우스를 올리면 밝아짐 */
+}
+
+/* 팝업 스타일 */
+.info-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.info-content {
+    background: #000;
+    border: 1px solid #eecf87;
+    padding: 20px;
+    color: #fff;
+    text-align: center;
+}
     </style>
 </head>
 <body>
@@ -58,6 +90,16 @@
     <div id="game-container">
         <div id="first-screen" class="screen" style="display: flex; background-image: url('first.png');">
             <button id="first-btn" class="btn" style="margin-top: 370px;">이야기 시작하기</button>
+            <div class="creator-text" onclick="toggleInfo()">제작자: 덕크</div>
+
+<div id="info-popup" class="info-overlay">
+    <div class="info-content">
+        <h3>게임 정보</h3>
+        <p>성세천하 2차 창작물</p>
+        <p>제작 : 덕크(@Deokjilkk) with 제미나이</p>
+        <button onclick="toggleInfo()" class="btn">닫기</button>
+    </div>
+</div>
         </div>
 
         <div id="page-screen" class="screen" style="background-image: url('page.png');">
@@ -93,6 +135,16 @@
         <div style="position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 260px;">
             <div id="final-score" style="font-size: 150px; color: #eecf87; font-weight: bold; margin-bottom: 50px; text-shadow: 2px 2px 10px #000;">0</div>
             <button onclick="restartGame()" class="btn">다시하기</button>
+            <div class="creator-text" onclick="toggleInfo()">제작자: 덕크</div>
+
+<div id="info-popup" class="info-overlay">
+    <div class="info-content">
+        <h3>게임 정보</h3>
+        <p>성세천하 2차 창작물</p>
+        <p>제작 : 덕크(@Deokjilkk) with 제미나이</p>
+        <button onclick="toggleInfo()" class="btn">닫기</button>
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -178,7 +230,7 @@ window.addEventListener('click', () => {
 
         // 1단계 -> 2단계 이동
         document.getElementById('first-btn').addEventListener('click', () => {
-            playMusic(bgmGame, 0.2);
+            playMusic(bgmMain, 0.1);
             document.getElementById('first-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'flex';
             startSequence();
@@ -229,7 +281,7 @@ window.addEventListener('click', () => {
             setTimeout(() => {
         msg.style.opacity = '0';
         msg.style.transform = 'scale(0.9)'; // 사라질 때도 다시 작아지게
-    }, 2000);
+    }, 1500);
             
             score = 0;
             isGameOver = false;
@@ -311,15 +363,19 @@ window.addEventListener('click', () => {
         }
     }
     type();
-    playMusic(bgmMain, 0.3);
+    playMusic(bgmGame, 0.2);
 }
         function restartGame() {
             document.getElementById('success-screen').style.display = 'none';
             document.getElementById('caught-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'flex';
             startSequence();
-            playMusic(bgmMain, 0.4);
+            playMusic(bgmMain, 0.2);
         }
+        function toggleInfo() {
+    const popup = document.getElementById('info-popup');
+    popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
+}
     </script>
 </body>
 </html>
